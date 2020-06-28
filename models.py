@@ -3,7 +3,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-database_path = 'postgresql://postgres@localhost:5432/casting_agency'
+database_path = os.environ['DATABASE_URL_TEST'] if os.environ['ENV'] == 'test' else os.environ['DATABASE_URL']
 db = SQLAlchemy()
 
 '''
