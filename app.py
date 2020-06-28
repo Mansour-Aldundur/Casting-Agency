@@ -3,6 +3,7 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from models import setup_db, Actor, Movie
+from auth import AuthError, requires_auth
 
 
 def create_app(test_config=None):
@@ -18,7 +19,8 @@ def create_app(test_config=None):
         return 'Hello ! , welcome to the cating agency API'
 
     @app.route('/actors')
-    def view_actors():
+    @requires_auth('view:actors')
+    def view_actors(payload):
         try:
             actors = [actor.format for actor in Actor.query.all()]
 
@@ -32,7 +34,8 @@ def create_app(test_config=None):
             abort(422)
 
     @app.route('/movies')
-    def view_movies():
+    @requires_auth('view:movies')
+    def view_movies(payload):
         try:
             movies = [movie.format for movie in Movie.query.all()]
 
@@ -46,7 +49,8 @@ def create_app(test_config=None):
             abort(422)
 
     @app.route('/actors', methods=['POST'])
-    def create_actor():
+    @requires_auth('post:actors')
+    def create_actor(payload):
         body = request.get_json()
 
         name = body.get('name', None)
@@ -77,7 +81,8 @@ def create_app(test_config=None):
             abort(422)
 
     @app.route('/movies', methods=['POST'])
-    def create_movie():
+    @requires_auth('post:movies')
+    def create_movie(payload):
         body = request.get_json()
 
         title = body.get('title', None)
@@ -107,7 +112,8 @@ def create_app(test_config=None):
             abort(422)
 
     @app.route('/actors/<int:id>', methods=['PATCH'])
-    def update_actors(id):
+    @requires_auth('patch:actors')
+    def update_actors(payload, id):
         error = None
 
         try:
@@ -142,7 +148,8 @@ def create_app(test_config=None):
             abort(422)
 
     @app.route('/movies/<int:id>', methods=['PATCH'])
-    def update_movies(id):
+    @requires_auth('patch:movies')
+    def update_movies(payload, id):
         error = None
 
         try:
@@ -176,7 +183,8 @@ def create_app(test_config=None):
             abort(422)
 
     @app.route('/actors/<int:id>', methods=['DELETE'])
-    def delete_actors(id):
+    @requires_auth('delete:actors')
+    def delete_actors(payload, id):
         error = None
 
         try:
@@ -200,7 +208,8 @@ def create_app(test_config=None):
             abort(422)
 
     @app.route('/movies/<int:id>', methods=['DELETE'])
-    def delete_movies(id):
+    @requires_auth('delete:movies')
+    def delete_movies(payload, id):
         error = None
 
         try:
@@ -222,6 +231,48 @@ def create_app(test_config=None):
             if error == 404:
                 abort(404)
             abort(422)
+
+    # Error Handling
+
+    @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({
+            "success": False,
+            "error": 400,
+            "message": "bad request"
+        }), 400
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            "success": False,
+            "error": 404,
+            "message": "not found"
+        }), 404
+
+    @app.errorhandler(405)
+    def moethod_not_allowed(error):
+        return jsonify({
+            "success": False,
+            "error": 405,
+            "message": "method not allowed"
+        }), 405
+
+    @app.errorhandler(422)
+    def unprocessable(error):
+        return jsonify({
+            "success": False,
+            "error": 422,
+            "message": "unprocessable"
+        }), 422
+
+    @app.errorhandler(AuthError)
+    def auth_error(e):
+        return jsonify({
+            'success': False,
+            'error': e.status_code,
+            'message': e.error['description']
+        }), e.status_code
 
     return app
 

@@ -3,7 +3,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-database_path = 'postgres://postgres@localhost:5432/casting_agency'
+database_path = 'postgresql://postgres@localhost:5432/casting_agency'
 db = SQLAlchemy()
 
 '''
