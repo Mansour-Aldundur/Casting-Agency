@@ -16,7 +16,7 @@ def create_app(test_config=None):
 
     @app.route('/')
     def hello():
-        return 'Hello ! , welcome to the cating agency API'
+        return 'Hello ! , welcome to the casting agency API'
 
     @app.route('/actors')
     @requires_auth('view:actors')
