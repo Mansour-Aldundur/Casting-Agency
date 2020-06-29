@@ -1,12 +1,13 @@
+import os
 import json
 from flask import request, _request_ctx_stack
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
 
-AUTH0_DOMAIN = 'auth-mansour.us.auth0.com'
-ALGORITHMS = ['RS256']
-API_AUDIENCE = 'casting-agency'
+AUTH0_DOMAIN = os.environ['AUTH0_DOMAIN']
+ALGORITHMS = os.environ['ALGORITHMS']
+API_AUDIENCE = os.environ['API_AUDIENCE']
 
 # AuthError Exception
 '''
@@ -53,7 +54,8 @@ def get_token_auth_header():
     elif split_auth_token_parts[0].lower() != 'bearer':
         raise AuthError({
             'error': 'invalid_auth_header',
-            'description': 'Invalid token supplied. Token must start with \'bearer\''
+            'description': 'Invalid token supplied.\
+            Token must start with \'bearer\''
         }, 401)
 
     token = split_auth_token_parts[1]
@@ -63,12 +65,12 @@ def get_token_auth_header():
 
 def check_permissions(permission, payload):
     '''
-      Checks that the user has the appropriate permission to access 
-      the endpoint
+      Checks that the user has the appropriate permission to
+      access the endpoint
       Required Parameters:
-      - permission: a string containing the necessary permission for this 
+      - permission: a string containing the necessary permission for this
       route e.g 'view:movies'
-      - payload: the JWT payload returned from the verify_decode_jwt(token) 
+      - payload: the JWT payload returned from the verify_decode_jwt(token)
       function
     '''
 
@@ -89,7 +91,7 @@ def check_permissions(permission, payload):
 
 def verify_decode_jwt(token):
     '''
-      Verifies the claims of the JWT token to ensure it is from the Auth0 
+      Verifies the claims of the JWT token to ensure it is from the Auth0
       source
       Required Parameters:
       - token: JWT token gotten from the 'Authorization' header
@@ -136,7 +138,8 @@ def verify_decode_jwt(token):
         except jwt.JWTClaimsError:
             raise AuthError({
                 'code': 'invalid_claims',
-                'description': 'Incorrect claims. Please, check the audience and issuer.'
+                'description': 'Incorrect claims. Please, \
+                check the audience and issuer.'
             }, 401)
         except Exception:
             raise AuthError({
