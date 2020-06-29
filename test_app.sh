@@ -1,6 +1,6 @@
 export ENV='test'
 
-export DATABASE_URL_TEST='postgresql://postgres@localhost:5432/casting_agency'
+export DATABASE_URL_TEST=''
 
 export AUTH0_DOMAIN='auth-mansour.us.auth0.com'
 
